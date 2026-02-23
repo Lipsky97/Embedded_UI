@@ -1,0 +1,76 @@
+﻿@page "/"
+@using Portfolio_2026.Components.Partials
+@rendermode InteractiveServer
+<PageTitle>Home Screen</PageTitle>
+<MudThemeProvider />
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<div class="home-container">
+    <div class="current-stats-container">
+        <div class="temp-container">
+            <span class="temp-display">
+                @_currentTemp °C
+            </span>
+        </div>
+        <div class="other-stats-container">
+            <div class="info-row">
+                <span>Relative Humidity</span>
+                <span class="other-stat-text">@_currentHumidity RH</span>
+            </div>
+            <div class="info-row">
+                <span>Altitude</span>
+                <span class="other-stat-text">@_currentAltitude m</span>
+            </div>
+            <div class="info-row">
+                <span>Pressure</span>
+                <span class="other-stat-text">@_currentPressure hPa</span>
+            </div>
+        </div>
+    </div>
+    <div class="stats-over-time-container">
+        @for (var i = 0; i < _charts.Count; i++)
+        {
+            <ChartDisplay Categories="_charts[i].Categories" Interval="_charts[i].Interval" IsContinuous="_charts[i].IsContinuous" From="_charts[i].From" To="_charts[i].To" Index="i" />
+        }
+    </div>
+    <MudButton EndIcon="@Icons.Material.Filled.Add" Variant="Variant.Outlined" FullWidth="true" OnClick="AddNewChart">
+        Add new chart
+    </MudButton>
+</div>
+
+@code {
+    private double _currentTemp { get; set; } = 23.5;
+    private double _currentHumidity { get; set; } = 26;
+    private double _currentAltitude { get; set; } = 1;
+    private double _currentPressure { get; set; } = 1025;
+    private List<ValueEntry> _tempEntries = new List<ValueEntry>();
+    private List<ChartEntry> _charts = new List<ChartEntry>();
+    private readonly LocalDataStoreService _localDataStoreService = new LocalDataStoreService();
+
+    protected override void OnInitialized()
+    {
+        _charts = _localDataStoreService.GetCharts().OrderBy(x => x.Index).ToList();
+        if (!_charts.Any())
+        {
+            AddNewChart();
+        }
+    }
+
+    private void AddNewChart()
+    {
+        var chart = new ChartEntry()
+        {
+            Categories = new List<string>() { "temperature" },
+            From = DateTime.Today.AddDays(-1),
+            To = DateTime.Today.AddDays(1),
+            Index = 0,
+            Interval = ChartIntervalEnum.Hours,
+            IsContinuous = false
+        };
+
+        _charts.Add(chart);
+        StateHasChanged();
+    }
+}

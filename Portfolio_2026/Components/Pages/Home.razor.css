@@ -1,0 +1,26 @@
+﻿.current-stats-container {
+    background: #f0f0f0;
+    padding-right: 2em;
+    padding-left: 2em;
+    padding-bottom: 1em;
+    padding-top: 1em;
+} 
+
+.temp-container
+{
+    display: flex;
+    font-size: 50px;
+    justify-content: center;
+    padding-top: 0.5em;
+}
+
+.other-stats-container {
+    display: grid;
+    width: 15em;
+    justify-self: right;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+}

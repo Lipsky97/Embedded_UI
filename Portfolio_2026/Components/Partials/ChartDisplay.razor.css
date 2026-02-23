@@ -1,0 +1,9 @@
+﻿.chart-options {
+    display: flex;
+    padding: 1em;
+    gap: 2em;
+}
+
+.chart-date-picker {
+    width: 4em;
+}

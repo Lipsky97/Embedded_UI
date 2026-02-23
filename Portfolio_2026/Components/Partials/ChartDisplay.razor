@@ -1,0 +1,146 @@
+﻿<div class="chart-container">
+    <div class="chart-options">
+        <MudSelect Value="Interval" ValueChanged="@((ChartIntervalEnum val) => OnIntervalChanged(val))" Label="Select interval" AdornmentColor="Color.Primary">
+            @foreach(ChartIntervalEnum option in Enum.GetValues(typeof(ChartIntervalEnum)))
+            {
+                <MudSelectItem Value="@option">@option</MudSelectItem>
+            }
+        </MudSelect>
+        <MudDatePicker Class="chart-date-picker" Label="From" Date="From" DateChanged="@(val => {From = val; OnChartOptionsChanged();} )" Disabled="IsContinuous" />
+        <MudDatePicker Class="chart-date-picker" Label="To" Date="To" DateChanged="@(val => { To = val; OnChartOptionsChanged();})" Disabled="IsContinuous" />
+        <MudSwitch Label="Real time" Color="Color.Info" Value="IsContinuous" ValueChanged="@((bool val) => IsContinuousChanged(val))" />
+        <MudButton Variant="Variant.Filled" EndIcon="@Icons.Material.Filled.Save">Save</MudButton>
+    </div>
+    <div class="chart">
+        <MudPaper Class="doc-section-component-container">
+            <MudChart ChartType="ChartType.Line" ChartSeries="@_series" XAxisLabels="@_xAxisLabels" Width="100%" Height="350px"/>
+        </MudPaper>
+    </div>
+</div>
+
+@code {
+    [Parameter] public EventCallback OnChartSaved { get; set; }
+    [Parameter] public List<string> Categories { get; set; } = new List<string>() { "temperature" };
+    [Parameter] public DateTime? From { get; set; } = DateTime.Today.AddDays(-1);
+    [Parameter] public DateTime? To { get; set; } = DateTime.Today.AddDays(1);
+    [Parameter] public ChartIntervalEnum Interval { get; set; } = ChartIntervalEnum.Hours;
+    [Parameter] public bool IsContinuous { get; set; } = false;
+    [Parameter] public int Index { get; set; } = 0;
+    private List<ChartSeries> _series { get; set; } = new List<ChartSeries>();
+    private readonly LocalDataStoreService _localDataStoreService = new LocalDataStoreService();
+    private string[] _xAxisLabels;
+
+    protected override void OnInitialized()
+    {
+        UpdateChart();
+        StateHasChanged();
+    } 
+
+    private void OnChartOptionsChanged()
+    {
+        UpdateChart();
+        StateHasChanged();
+    }
+
+    private void OnIntervalChanged(ChartIntervalEnum interval)
+    {
+        Interval = interval;
+        OnChartOptionsChanged();
+    }
+
+    private void IsContinuousChanged(bool value)
+    {
+        IsContinuous = value;
+        StateHasChanged();
+    }
+
+    private void UpdateChart()
+    {
+        _series.Clear();
+        foreach (var category in Categories)
+        {
+            var categoryData = GetCategoryData(category);
+
+            var groupedData = GroupData(categoryData);
+
+            _xAxisLabels = groupedData.Select(x => x.TimeStamp.ToString()).ToArray();
+
+            var series = new ChartSeries();
+            series.Name = category;
+            series.Data = groupedData.Select(x => x.Value).ToArray();
+            _series.Add(series);
+        }
+    }
+
+    private List<ValueEntry> GroupData(List<ValueEntry> data)
+    {
+        var groupedData = new List<ValueEntry>();
+        switch (Interval)
+        {
+            case ChartIntervalEnum.Hours:
+                groupedData = data
+                    .GroupBy(x => new DateTime(x.TimeStamp.Year, x.TimeStamp.Month, x.TimeStamp.Day, x.TimeStamp.Hour, 0, 0))
+                    .Select(x => new ValueEntry { TimeStamp = x.Key, Value = x.Average(y => y.Value) })
+                    .OrderBy(x => x.TimeStamp)
+                    .ToList();
+                break;
+            case ChartIntervalEnum.Days:
+                groupedData = data
+                    .GroupBy(x => new DateTime(x.TimeStamp.Year, x.TimeStamp.Month, x.TimeStamp.Day))
+                    .Select(x => new ValueEntry { TimeStamp = x.Key, Value = x.Average(y => y.Value) })
+                    .OrderBy(x => x.TimeStamp)
+                    .ToList();
+                break;
+            case ChartIntervalEnum.Months:
+                groupedData = data
+                    .GroupBy(x => new { x.TimeStamp.Year, x.TimeStamp.Month })
+                    .Select(x => new ValueEntry { TimeStamp = new DateTime(x.Key.Year, x.Key.Month, 1), Value = x.Average(y => y.Value) })
+                    .OrderBy(x => x.TimeStamp)
+                    .ToList();
+                break;
+            case ChartIntervalEnum.Years:
+                groupedData = data
+                    .GroupBy(x => new { x.TimeStamp.Year })
+                    .Select(x => new ValueEntry { TimeStamp = new DateTime(x.Key.Year, 1, 1), Value = x.Average(y => y.Value) })
+                    .OrderBy(x => x.TimeStamp)
+                    .ToList();
+                break;
+        }
+
+        return groupedData;
+    }
+
+    private List<ValueEntry> GetCategoryData(string category)
+    {
+        var categoryData = new List<ValueEntry>();
+        if (category == "pressure" && From != null && To != null)
+            categoryData = _localDataStoreService.GetPressures(From.Value, To.Value);
+
+        else if (category == "temperature" && From != null && To != null)
+            categoryData = _localDataStoreService.GetTemperatures(From.Value, To.Value);
+
+        else if (category == "humidity" && From != null && To != null)
+            categoryData = _localDataStoreService.GetHumidities(From.Value, To.Value);
+
+        return categoryData;
+    }
+
+    private async Task SaveChart()
+    {
+        if (From == null || To == null) return;
+        var chartEntry = new ChartEntry()
+        {
+            Categories = Categories,
+            Interval = Interval,
+            IsContinuous = IsContinuous,
+            From = From.Value,
+            To = To.Value
+        };
+        _localDataStoreService.InsertChartEntry(chartEntry);
+
+        if (OnChartSaved.HasDelegate)
+        {
+            await OnChartSaved.InvokeAsync();
+        }
+    }
+}

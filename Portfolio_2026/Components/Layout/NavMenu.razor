@@ -1,0 +1,44 @@
+﻿@* <div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">Portfolio_2026</a>
+    </div>
+</div>
+
+<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
+
+<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
+    <nav class="nav flex-column">
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="counter">
+                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="weather">
+                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
+            </NavLink>
+        </div>
+    </nav>
+</div> *@
+
+<MudAppBar Color="Color.Primary" Fixed="false">
+    <MudIconButton Icon="@Icons.Material.Outlined.Home" Color="Color.Inherit" Edge="Edge.Start" ButtonType="ButtonType.Button" Ripple="true" Href="/"/>
+    <MudIconButton Icon="@Icons.Material.Outlined.Settings" Color="Color.Inherit" Edge="Edge.Start" ButtonType="ButtonType.Button" Ripple="true" Href="/settings" />
+    <MudSpacer />
+    <div class="system-clock">
+        <span>@_currentTime</span>
+        <span>@_currentDate</span>
+    </div>
+</MudAppBar>
+
+@code {
+    private string _currentTime { get; set; } = $"{DateTime.Now.Hour.ToString("00")}:{DateTime.Now.Minute.ToString("00")}";
+    private string _currentDate { get; set; } = $"{DateTime.Today.Day.ToString("00")}.{DateTime.Today.Month.ToString("00")}.{DateTime.Today.Year}"; 
+}
