@@ -1,6 +1,6 @@
 using MudBlazor.Services;
-using Portfolio_2026.Components;
-using Portfolio_2026.Services;
+using EmbeddedUI.UI.Components;
+using EmbeddedUI.UI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 

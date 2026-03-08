@@ -1,4 +1,4 @@
-﻿namespace Portfolio_2026.Models
+﻿namespace EmbeddedUI.UI.Models
 {
     public class ValueEntry
     {

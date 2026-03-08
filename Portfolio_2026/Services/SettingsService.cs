@@ -1,7 +1,7 @@
-﻿using Portfolio_2026.Models;
+﻿using EmbeddedUI.UI.Models;
 using System.Xml.Linq;
 
-namespace Portfolio_2026.Services
+namespace EmbeddedUI.UI.Services
 {
     public class SettingsService
     {
