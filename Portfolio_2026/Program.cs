@@ -1,5 +1,6 @@
 using MudBlazor.Services;
 using Portfolio_2026.Components;
+using Portfolio_2026.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,6 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 builder.Services.AddMudServices();
+builder.Services.AddSingleton<DataClientService>();
 
 var app = builder.Build();
 

@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Settings>
+  <TemperatureUnit>Celsius</TemperatureUnit>
+  <HumidityUnit>Meters</HumidityUnit>
+  <PressureUnit>Hpa</PressureUnit>
+</Settings>
