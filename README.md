@@ -11,7 +11,7 @@ The repository also includes a small Python utility that reads values from the s
 ## Implemented features
 * Basic user interface
 * Python utility to read and broadcast sensor values
-* Real-time values display
+* Read from pythond utility and display real-time values
 * UI contains charts
 * Read from local database and chart sensor readings
 
