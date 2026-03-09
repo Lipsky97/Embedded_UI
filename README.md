@@ -19,4 +19,4 @@ The repository also includes a small Python utility that reads values from the s
 * Real-time charts updating every n amount of time
 * Settings page
 * Saving and retrieving chart configs and positions
-
+* Automatic online db backup
